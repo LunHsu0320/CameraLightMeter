@@ -4,6 +4,7 @@ import CameraPreview
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.app.Activity
+import android.content.Context
 import android.widget.FrameLayout
 import android.hardware.Camera
 import android.util.Log
@@ -19,74 +20,39 @@ import android.hardware.SensorManager
 
 
 class MainActivity : AppCompatActivity() {
-    private var mCamera: Camera? = null
-    private var mPreview: CameraPreview? = null
+    private lateinit var sensorManager: SensorManager
+    private lateinit var lightSensor: Sensor
+
+    private val lightSensorListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            val lux = event.values[0]
+            // 在這裡處理光感應器的數值
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
+            // 在這裡處理精確度變化事件（可選）
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        mPreview = CameraPreview(this)
-        val previewLayout: FrameLayout = findViewById(R.id.camera_preview)
-        previewLayout.addView(mPreview)
-
-        val button: Button = findViewById(R.id.button)
-
-        button.setOnClickListener {
-            performMetering()
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
         }
-    }
-    private fun performMetering() {
-        mCamera?.let { camera ->
-            val params: Camera.Parameters = camera.parameters
-            val exposureCompensation: Int = params.exposureCompensation
-
-            // 在這裡顯示或輸出曝光補償值
-            Log.d(TAG, "Exposure Compensation: $exposureCompensation")
-        }
-    }
-
-    private fun getCameraInstance(): Camera? {
-        return try {
-            Camera.open()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error opening camera: " + e.message)
-            null
-        }
-    }
-
     override fun onResume() {
         super.onResume()
-        try {
-            mCamera = Camera.open()
-            mCamera?.let { camera ->
-                mPreview?.setCamera(camera)
-                camera.startPreview()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error opening camera: " + e.message)
-        }
+        sensorManager.registerListener(lightSensorListener, lightSensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
-
     override fun onPause() {
         super.onPause()
-        releaseCamera()
+        sensorManager.unregisterListener(lightSensorListener)
     }
 
-    private fun releaseCamera() {
-        mCamera?.let { camera ->
-            camera.stopPreview()
-            camera.release()
-            mCamera = null
-        }
-    }
 
-    companion object {
-        private const val TAG = "MainActivity"
-    }
 }
-
 
 
 
