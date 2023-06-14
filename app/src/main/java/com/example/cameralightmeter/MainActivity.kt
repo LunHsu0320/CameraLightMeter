@@ -6,18 +6,18 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
+
     private lateinit var sensorManager: SensorManager
     private var lightSensor: Sensor? = null
-    private lateinit var textView: TextView
+    private lateinit var valueTextView: TextView
+    private lateinit var supportStatusTextView: TextView
 
     private var lightSensorValue: Float = 0f
     private var hasReceivedSensorValue: Boolean = false
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,12 +25,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
-        textView = findViewById(R.id.light_value_textview)
+        valueTextView = findViewById(R.id.light_value_textview)
+        supportStatusTextView = findViewById(R.id.supportStatusTextView)
 
         if (lightSensor == null) {
-            textView.text = "設備不支援光感應器"
+            supportStatusTextView.text = "設備不支援光感應器"
         } else {
-            textView.text = "支援光感應器"
+            supportStatusTextView.text = "支援光感應器"
         }
     }
 
@@ -39,16 +40,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         lightSensor?.let { sensor ->
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
 
-            // 檢查是否收到光感應器數值
             if (!hasReceivedSensorValue) {
-                // 沒有收到數值，顯示預設數值
-                textView.text = "預設數值：999"
+                valueTextView.text = "預設數值：999"
             }
         }
     }
-
-
-
 
     override fun onPause() {
         super.onPause()
@@ -56,7 +52,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // 當感測器準確度變化時觸發
+        // 當感應器的準確性變化時觸發的回呼方法
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -65,12 +61,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 lightSensorValue = sensorEvent.values[0]
                 hasReceivedSensorValue = true
 
-                // 更新 TextView 的內容
-                textView.text = "光感應器數值：$lightSensorValue"
+                valueTextView.text = "光感應器數值：$lightSensorValue"
             }
         }
     }
-
 }
+
 
 
