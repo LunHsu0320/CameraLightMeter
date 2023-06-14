@@ -1,69 +1,76 @@
 package com.example.cameralightmeter
 
-import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : Activity() {
-
+class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
-    private lateinit var lightSensor: Sensor
-    private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var lightValueTextView: TextView
+    private var lightSensor: Sensor? = null
+    private lateinit var textView: TextView
 
-    private val lightSensorListener = object : SensorEventListener {
-        override fun onSensorChanged(event: SensorEvent) {
-            val lux = event.values[0]
-            updateLightValue(lux)
-            saveLightValue(lux)
-        }
+    private var lightSensorValue: Float = 0f
+    private var hasReceivedSensorValue: Boolean = false
 
-        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
-            // 在這裡處理精確度變化事件（可選）
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        lightValueTextView = findViewById(R.id.light_value_textview)
-
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
-        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        textView = findViewById(R.id.light_value_textview)
+
+        if (lightSensor == null) {
+            textView.text = "設備不支援光感應器"
+        } else {
+            textView.text = "支援光感應器"
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        sensorManager.registerListener(
-            lightSensorListener,
-            lightSensor,
-            SensorManager.SENSOR_DELAY_NORMAL
-        )
+        lightSensor?.let { sensor ->
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
 
-        val lightValue = sharedPreferences.getFloat("light_value", 0.0f)
-        updateLightValue(lightValue)
+            // 檢查是否收到光感應器數值
+            if (!hasReceivedSensorValue) {
+                // 沒有收到數值，顯示預設數值
+                textView.text = "預設數值：999"
+            }
+        }
     }
+
+
+
 
     override fun onPause() {
         super.onPause()
-        sensorManager.unregisterListener(lightSensorListener)
+        sensorManager.unregisterListener(this)
     }
 
-    private fun updateLightValue(lightValue: Float) {
-        lightValueTextView.text = "光感應器值: $lightValue"
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // 當感測器準確度變化時觸發
     }
 
-    private fun saveLightValue(lightValue: Float) {
-        val editor = sharedPreferences.edit()
-        editor.putFloat("light_value", lightValue)
-        editor.apply()
+    override fun onSensorChanged(event: SensorEvent?) {
+        event?.let { sensorEvent ->
+            if (sensorEvent.sensor.type == Sensor.TYPE_LIGHT) {
+                lightSensorValue = sensorEvent.values[0]
+                hasReceivedSensorValue = true
+
+                // 更新 TextView 的內容
+                textView.text = "光感應器數值：$lightSensorValue"
+            }
+        }
     }
+
 }
+
+

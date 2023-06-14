@@ -1,15 +1,30 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
     tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/supportStatusTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="支援光感應器"
+        android:textSize="18sp"
+        android:layout_marginTop="16dp"/>
+
 
     <TextView
         android:id="@+id/light_value_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="光感應器值: "
-        android:layout_centerInParent="true"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:text="光感應器數值："
+        />
 
-</RelativeLayout>
+    <!-- 其他元素或佈局結構 -->
+
+</LinearLayout>
