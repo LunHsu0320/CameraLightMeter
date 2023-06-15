@@ -25,6 +25,45 @@
         android:text="光感應器數值："
         />
 
+    <TextView
+        android:id="@+id/isoTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ISO: "
+         />
+
+    <Spinner
+        android:id="@+id/isoSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+     />
+
+    <TextView
+        android:id="@+id/apertureTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="光圈: "
+         />
+
+    <Spinner
+        android:id="@+id/apertureSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+     />
+
+    <TextView
+        android:id="@+id/shutterTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="快門: "
+         />
+
+    <Spinner
+        android:id="@+id/shutterSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+     />
+
     <!-- 其他元素或佈局結構 -->
 
 </LinearLayout>
