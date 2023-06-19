@@ -11,58 +11,60 @@
         android:id="@+id/supportStatusTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="支援光感應器"
-        android:textSize="18sp"
-        android:layout_marginTop="16dp"/>
+        android:textSize="18sp" />
 
 
     <TextView
         android:id="@+id/light_value_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
         android:text="光感應器數值："
-        />
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/ev_value_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/light_value_textview"
+        android:text="EV 值："
+        android:textColor="@android:color/black"
+        android:textSize="16sp"/>
 
     <TextView
         android:id="@+id/isoTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ISO: "
-         />
+        android:text="ISO: " />
 
     <Spinner
         android:id="@+id/isoSpinner"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
-     />
+        android:layout_height="48dp" />
 
     <TextView
         android:id="@+id/apertureTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="光圈: "
-         />
+        android:text="光圈: " />
 
     <Spinner
         android:id="@+id/apertureSpinner"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
-     />
+        android:layout_height="48dp" />
 
     <TextView
         android:id="@+id/shutterTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="快門: "
-         />
+        android:text="快門: " />
 
     <Spinner
         android:id="@+id/shutterSpinner"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
-     />
+        android:layout_height="48dp" />
 
     <!-- 其他元素或佈局結構 -->
 
