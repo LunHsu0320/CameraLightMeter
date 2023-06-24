@@ -6,6 +6,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -22,13 +23,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var isoTextView: TextView
     private lateinit var apertureTextView: TextView
     private lateinit var shutterTextView: TextView
+    private lateinit var ev_value_textview: TextView
+
     private lateinit var isoSpinner: Spinner
     private lateinit var apertureSpinner: Spinner
     private lateinit var shutterSpinner: Spinner
 
-
+    private var lightSensorDefaultValue: Float = 0f
     private var lightSensorValue: Float = 0f
     private var hasReceivedSensorValue: Boolean = false
+
+    private val defaultConstant = 250
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +47,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         isoTextView = findViewById(R.id.isoTextView)
         apertureTextView = findViewById(R.id.apertureTextView)
         shutterTextView = findViewById(R.id.shutterTextView)
+        ev_value_textview = findViewById(R.id.ev_value_textview)
         // 找到相應的 Spinner
         isoSpinner = findViewById(R.id.isoSpinner)
         apertureSpinner = findViewById(R.id.apertureSpinner)
@@ -51,6 +58,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         } else {
             supportStatusTextView.text = "支援光感應器"
         }
+
+        Log.d("光感應器常數", "預設常數值為: $defaultConstant")
+
 
         // 設置 ISO、光圈和快門的數據源
         val isoValues = arrayOf("100", "200", "400", "800", "1600")
@@ -105,8 +115,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 // 不執行任何操作
             }
         }
-
-
     }
 
     override fun onResume() {
@@ -115,7 +123,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
 
             if (!hasReceivedSensorValue) {
-                valueTextView.text = "預設數值：999"
+                lightSensorDefaultValue = 160f
+                lightSensorValue=lightSensorDefaultValue
+                valueTextView.text = "預設數值：$lightSensorDefaultValue"
+
+                // 計算光度曝光值
+                val calibrationConstant = defaultConstant
+                val exposureValue = Math.log10(lightSensorValue.toDouble() / calibrationConstant.toDouble()) / Math.log10(2.0)
+
+
+                // 將光度曝光值顯示在 TextView 上
+                ev_value_textview.text = "光度曝光值Ev：$exposureValue"
             }
         }
     }
@@ -139,7 +157,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 //                isoTextView.text = "ISO: $isoValue"
 //                apertureTextView.text = "光圈: $apertureValue"
 //                shutterTextView.text = "快門: $shutterValue"
+                // 計算光度曝光值
+                val calibrationConstant = defaultConstant
+                val exposureValue = Math.log10(lightSensorValue.toDouble() / calibrationConstant.toDouble()) / Math.log10(2.0)
 
+                // 將光度曝光值顯示在 TextView 上
+                ev_value_textview.text = "光度曝光值Ev：$exposureValue"
 
             }
         }
