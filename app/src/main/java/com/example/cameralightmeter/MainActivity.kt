@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // 初始化相關元件
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
         valueTextView = findViewById(R.id.light_value_textview)
@@ -48,11 +49,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         apertureTextView = findViewById(R.id.apertureTextView)
         shutterTextView = findViewById(R.id.shutterTextView)
         ev_value_textview = findViewById(R.id.ev_value_textview)
-        // 找到相應的 Spinner
         isoSpinner = findViewById(R.id.isoSpinner)
         apertureSpinner = findViewById(R.id.apertureSpinner)
         shutterSpinner = findViewById(R.id.shutterSpinner)
 
+        // 檢查設備是否支援光感應器
         if (lightSensor == null) {
             supportStatusTextView.text = "設備不支援光感應器"
         } else {
@@ -60,7 +61,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         Log.d("光感應器常數", "預設常數值為: $defaultConstant")
-
 
         // 設置 ISO、光圈和快門的數據源
         val isoValues = arrayOf("100", "200", "400", "800", "1600")
@@ -117,6 +117,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    // Activity 恢復時註冊光感應器監聽器
     override fun onResume() {
         super.onResume()
         lightSensor?.let { sensor ->
@@ -124,13 +125,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             if (!hasReceivedSensorValue) {
                 lightSensorDefaultValue = 160f
-                lightSensorValue=lightSensorDefaultValue
+                lightSensorValue = lightSensorDefaultValue
                 valueTextView.text = "預設數值：$lightSensorDefaultValue"
 
                 // 計算光度曝光值
                 val calibrationConstant = defaultConstant
                 val exposureValue = Math.log10(lightSensorValue.toDouble() / calibrationConstant.toDouble()) / Math.log10(2.0)
-
 
                 // 將光度曝光值顯示在 TextView 上
                 ev_value_textview.text = "光度曝光值Ev：$exposureValue"
@@ -138,6 +138,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    // Activity 暫停時取消光感應器監聽器註冊
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
@@ -154,20 +155,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 hasReceivedSensorValue = true
 
                 valueTextView.text = "光感應器數值：$lightSensorValue lux"
-//                isoTextView.text = "ISO: $isoValue"
-//                apertureTextView.text = "光圈: $apertureValue"
-//                shutterTextView.text = "快門: $shutterValue"
+
                 // 計算光度曝光值
                 val calibrationConstant = defaultConstant
                 val exposureValue = Math.log10(lightSensorValue.toDouble() / calibrationConstant.toDouble()) / Math.log10(2.0)
 
                 // 將光度曝光值顯示在 TextView 上
                 ev_value_textview.text = "光度曝光值Ev：$exposureValue"
-
             }
         }
     }
 }
-
-
-
