@@ -64,7 +64,7 @@
 
             // 設置 ISO、光圈和快門的數據源
             val isoValues = arrayOf("100", "200", "400", "800", "1600")
-            val apertureValues = arrayOf("1.4", "2.0", "2.8", "4.0", "5.6")
+            val apertureValues = arrayOf("1.0","1.4", "2.0", "2.8", "4.0", "5.6")
             val shutterValues = arrayOf("1/1000", "1/500", "1/250", "1/125", "1/60")
 
             // 創建 ArrayAdapter 並設置數據源
@@ -124,7 +124,7 @@
                 sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
 
                 if (!hasReceivedSensorValue) {
-                    lightSensorDefaultValue = 160f
+                    lightSensorDefaultValue = 2.5f
                     lightSensorValue = lightSensorDefaultValue
                     valueTextView.text = "預設數值：$lightSensorDefaultValue"
 
