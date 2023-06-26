@@ -126,14 +126,14 @@
                 if (!hasReceivedSensorValue) {
                     lightSensorDefaultValue = 2.5f
                     lightSensorValue = lightSensorDefaultValue
-                    valueTextView.text = "預設數值：$lightSensorDefaultValue"
-
-                    // 計算光度曝光值
-                    val calibrationConstant = defaultConstant
-                    val exposureValue = Math.log10(lightSensorValue.toDouble() / calibrationConstant.toDouble()) / Math.log10(2.0)
+                    valueTextView.text = "目前為預設數值：$lightSensorDefaultValue"
 
                     // 讀取選擇的 ISO 值
                     val selectedISO = isoSpinner.selectedItem.toString().toDouble()
+
+                    // 計算光度曝光值
+                    val calibrationConstant = defaultConstant
+                    val exposureValue = Math.log(lightSensorValue.toDouble() * selectedISO / calibrationConstant.toDouble()) / Math.log(2.0)
 
                     // 計算 EISO
                     val eISO = exposureValue + Math.log10(selectedISO / 100) / Math.log10(2.0)
@@ -142,7 +142,7 @@
                     Log.d("eISO", "eISO為: $eISO")
 
                     // 將光度曝光值顯示在 TextView 上
-                    ev_value_textview.text = "光度曝光值Ev：$exposureValue"
+                    ev_value_textview.text = "Ev：$exposureValue"
                 }
             }
         }
@@ -165,12 +165,12 @@
 
                     valueTextView.text = "光感應器數值：$lightSensorValue lux"
 
-                    // 計算光度曝光值
-                    val calibrationConstant = defaultConstant
-                    val exposureValue = Math.log10(lightSensorValue.toDouble() / calibrationConstant.toDouble()) / Math.log10(2.0)
-
                     // 讀取選擇的 ISO 值
                     val selectedISO = isoSpinner.selectedItem.toString().toDouble()
+
+                    // 計算光度曝光值
+                    val calibrationConstant = defaultConstant
+                    val exposureValue = Math.log(lightSensorValue.toDouble() * selectedISO / calibrationConstant.toDouble()) / Math.log(2.0)
 
                     // 計算 EISO
                     val eISO = exposureValue + Math.log10(selectedISO / 100) / Math.log10(2.0)
