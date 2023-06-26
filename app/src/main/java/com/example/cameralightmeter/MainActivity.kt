@@ -35,6 +35,8 @@
 
         private val defaultConstant = 250
 
+        private lateinit var prioritySpinner: Spinner
+        private lateinit var selectedPriority: String
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -79,6 +81,24 @@
             val shutterAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, shutterValues)
             shutterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             shutterSpinner.adapter = shutterAdapter
+
+            // 優先考慮選項
+            val priorityValues = arrayOf("ISO", "光圈", "快門速度")
+            val priorityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, priorityValues)
+            priorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            prioritySpinner.adapter = priorityAdapter
+
+            // 優先考慮 Spinner 選擇監聽器
+            prioritySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    selectedPriority = priorityValues[position]
+                    updateOtherParameters(selectedPriority)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // 不執行任何操作
+                }
+            }
 
             // ISO Spinner 選擇監聽器
             isoSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -183,4 +203,105 @@
                 }
             }
         }
+        private fun updateOtherParameters(selectedPriority: String) {
+            // 根據優先考慮的選項，執行相應的邏輯處理
+            when (selectedPriority) {
+                "ISO" -> {
+                    val selectedISO = isoSpinner.selectedItem.toString().toDouble()
+                    isoTextView.text = "ISO：$selectedISO"
+
+                    // 更新光圈和快門的推薦數值
+                    val recommendedAperture = calculateRecommendedAperture(selectedISO, selectedPriority)
+                    val recommendedShutter = calculateRecommendedShutter(selectedISO, selectedPriority)
+                    apertureTextView.text = "光圈：$recommendedAperture"
+                    shutterTextView.text = "快門：$recommendedShutter"
+
+                    // 計算光度曝光值
+                    val calibrationConstant = defaultConstant
+                    val exposureValue = Math.log(lightSensorValue.toDouble() * selectedISO / calibrationConstant.toDouble()) / Math.log(2.0)
+
+                    // 計算 EISO
+                    val eISO = exposureValue + Math.log10(selectedISO / 100) / Math.log10(2.0)
+
+                    // 更新光度曝光值和 EISO 的顯示
+                    ev_value_textview.text = "光度曝光值Ev：$exposureValue"
+                    Log.d("eISO", "eISO為: $eISO")
+                }
+                "光圈" -> {
+                    val selectedAperture = apertureSpinner.selectedItem.toString().toDouble()
+                    apertureTextView.text = "光圈：$selectedAperture"
+
+                    // 更新 ISO 和快門的推薦數值
+                    val recommendedISO = calculateRecommendedISO(selectedAperture, selectedPriority)
+                    val recommendedShutter = calculateRecommendedShutter(recommendedISO, selectedPriority)
+                    isoTextView.text = "ISO：$recommendedISO"
+                    shutterTextView.text = "快門：$recommendedShutter"
+
+                    // 計算光度曝光值
+                    val calibrationConstant = defaultConstant
+                    val exposureValue = Math.log(lightSensorValue.toDouble() * recommendedISO / calibrationConstant.toDouble()) / Math.log(2.0)
+
+                    // 計算 EISO
+                    val eISO = exposureValue + Math.log10(recommendedISO / 100) / Math.log10(2.0)
+
+                    // 更新光度曝光值和 EISO 的顯示
+                    ev_value_textview.text = "光度曝光值Ev：$exposureValue"
+                    Log.d("eISO", "eISO為: $eISO")
+                }
+                "快門速度" -> {
+                    val selectedShutter = shutterSpinner.selectedItem.toString().toDouble()
+                    shutterTextView.text = "快門：$selectedShutter"
+
+                    // 更新 ISO 和光圈的推薦數值
+                    val recommendedISO = calculateRecommendedISO(selectedShutter, selectedPriority)
+                    val recommendedAperture = calculateRecommendedAperture(recommendedISO, selectedPriority)
+                    isoTextView.text = "ISO：$recommendedISO"
+                    apertureTextView.text = "光圈：$recommendedAperture"
+
+                    // 計算光度曝光值
+                    val calibrationConstant = defaultConstant
+                    val exposureValue = Math.log(lightSensorValue.toDouble() * recommendedISO / calibrationConstant.toDouble()) / Math.log(2.0)
+
+                    // 計算 EISO
+                    val eISO = exposureValue + Math.log10(recommendedISO / 100) / Math.log10(2.0)
+
+                    // 更新光度曝光值和 EISO 的顯示
+                    ev_value_textview.text = "光度曝光值Ev：$exposureValue"
+                    Log.d("eISO", "eISO為: $eISO")
+                }
+            }
+        }
+        private fun calculateRecommendedAperture(iso: Double, ev: Double, priority: String): Double {
+            val c = defaultConstant // 校準常數
+
+            return when (priority) {
+                "ISO" -> Math.sqrt(Math.pow(2.0, ev) * c / iso) // 根據 EV 值和選擇的 ISO 計算光圈值
+                "光圈" -> 2.8 // 優先考慮光圈，保持基礎光圈值不變
+                "快門速度" -> Math.sqrt(Math.pow(2.0, ev) * c / (iso * calculateRecommendedShutter(iso, priority))) // 根據 EV 值、ISO 和快門速度計算光圈值
+                else -> 2.8
+            }
+        }
+
+        private fun calculateRecommendedShutter(iso: Double, ev: Double, priority: String): Double {
+            val c = defaultConstant // 校準常數
+
+            return when (priority) {
+                "ISO" -> Math.pow(2.0, ev) * c / (iso * calculateRecommendedAperture(iso, priority)) // 根據 EV 值、ISO 和光圈計算快門速度值
+                "光圈" -> 1.0 / 125.0 // 優先考慮光圈，保持基礎快門速度值不變
+                "快門速度" -> Math.pow(2.0, ev) * c / (iso * calculateRecommendedAperture(iso, priority)) // 根據 EV 值、ISO 和光圈計算快門速度值
+                else -> 1.0 / 125.0
+            }
+        }
+
+        private fun calculateRecommendedISO(aperture: Double, ev: Double, priority: String): Double {
+            val c = defaultConstant // 校準常數
+
+            return when (priority) {
+                "ISO" -> 200.0 // 優先考慮 ISO，保持基礎 ISO 值不變
+                "光圈" -> Math.pow(2.0, ev) * c / (aperture * aperture) // 根據 EV 值和選擇的光圈計算 ISO 值
+                "快門速度" -> Math.pow(2.0, ev) * c / (calculateRecommendedShutter(200.0, priority) * aperture) // 根據 EV 值、光圈和快門速度計算 ISO 值
+                else -> 200.0
+            }
+        }
+
     }
