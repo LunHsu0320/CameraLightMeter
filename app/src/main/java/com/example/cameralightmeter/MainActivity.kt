@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var prioritySpinner: Spinner
     private lateinit var selectedPriority: String
 
-    private val exposureValue: Double = 0.0
+//    private val exposureValue: Double = 0.0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -247,6 +247,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         when (selectedPriority) {
             "ISO" -> {
                 val selectedISO = isoSpinner.selectedItem.toString().toDouble()
+                recommendedISO = selectedISO // 將 selectedISO 賦值給 recommendedISO
+
                 isoTextView.text = "ISO：$selectedISO"
 
                 // 更新光圈和快門的推薦數值
