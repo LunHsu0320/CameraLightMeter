@@ -38,6 +38,9 @@
         private lateinit var prioritySpinner: Spinner
         private lateinit var selectedPriority: String
 
+        private val exposureValue: Double = 0.0
+
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_main)
@@ -211,9 +214,8 @@
                     isoTextView.text = "ISO：$selectedISO"
 
                     // 更新光圈和快門的推薦數值
-                    val recommendedAperture = calculateRecommendedAperture(selectedISO, selectedPriority)
-                    val recommendedShutter = calculateRecommendedShutter(selectedISO, selectedPriority)
-                    apertureTextView.text = "光圈：$recommendedAperture"
+                    val recommendedAperture = calculateRecommendedAperture(selectedISO, exposureValue, "ISO")
+                    val recommendedShutter = calculateRecommendedShutter(selectedISO, exposureValue, "ISO")                    apertureTextView.text = "光圈：$recommendedAperture"
                     shutterTextView.text = "快門：$recommendedShutter"
 
                     // 計算光度曝光值
@@ -227,13 +229,15 @@
                     ev_value_textview.text = "光度曝光值Ev：$exposureValue"
                     Log.d("eISO", "eISO為: $eISO")
                 }
+
                 "光圈" -> {
                     val selectedAperture = apertureSpinner.selectedItem.toString().toDouble()
                     apertureTextView.text = "光圈：$selectedAperture"
 
                     // 更新 ISO 和快門的推薦數值
-                    val recommendedISO = calculateRecommendedISO(selectedAperture, selectedPriority)
-                    val recommendedShutter = calculateRecommendedShutter(recommendedISO, selectedPriority)
+                    val recommendedISO = calculateRecommendedISO(selectedAperture, exposureValue, "光圈")
+                    val recommendedShutter = calculateRecommendedShutter(selectedAperture, exposureValue, "光圈")
+
                     isoTextView.text = "ISO：$recommendedISO"
                     shutterTextView.text = "快門：$recommendedShutter"
 
@@ -253,8 +257,8 @@
                     shutterTextView.text = "快門：$selectedShutter"
 
                     // 更新 ISO 和光圈的推薦數值
-                    val recommendedISO = calculateRecommendedISO(selectedShutter, selectedPriority)
-                    val recommendedAperture = calculateRecommendedAperture(recommendedISO, selectedPriority)
+                    val recommendedISO = calculateRecommendedISO(selectedShutter, exposureValue, "快門速度")
+                    val recommendedAperture = calculateRecommendedAperture(selectedShutter, exposureValue, "快門速度")
                     isoTextView.text = "ISO：$recommendedISO"
                     apertureTextView.text = "光圈：$recommendedAperture"
 
